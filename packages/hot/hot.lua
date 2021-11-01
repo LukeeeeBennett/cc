@@ -20,23 +20,26 @@ function Hot:listen()
   local event, url, message
   repeat
     event, url, message = os.pullEvent("websocket_message")
-    self:writeFile(message)
+    local split = self:split(message, ":")
+    local key = split[1]
+    local name = split[2]
+    local content = split[3]
+
+    self:writeFile(name, content)
+    self:runFile(name)
   until false
 end
 
-function Hot:writeFile(message)
-  local split = self:split(message, ":")
-  local key = split[1]
-  local name = split[2]
-  local content = split[3]
-
-  print(name, 'name')
-
+function Hot:writeFile(name, content)
   local handler = fs.open(name, "w")
   handler.write(content)
   handler.close()
 
   print("Reloaded", name)
+end
+
+function Hot:runFile(name)
+    shell.run(name)
 end
 
 function Hot:split(s, delimiter)
