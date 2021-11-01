@@ -42,6 +42,8 @@ ngrok http 8080
 hot ws://<my-ngrok-domain>
 ```
 
+If successful, changing files that are within the target of your hot server will have them updated on your connected devices.
+
 # TODO
 
 - Automatically run and re-run scripts that are being served by hot
