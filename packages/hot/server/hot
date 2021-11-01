@@ -1,0 +1,29 @@
+#!/usr/bin/env node
+
+const { WebSocketServer } = require("ws");
+const { watch } = require("chokidar");
+const { resolve, relative } = require("path");
+const { readFile } = require("fs");
+
+const wss = new WebSocketServer({
+  port: 8080,
+});
+
+const args = process.argv.slice(2);
+
+const name = args[0];
+
+const src = resolve(process.cwd(), name);
+
+wss.on("connection", (ws) => {
+  console.info("Client connected.");
+  const watcher = watch(src);
+  watcher.on("change", async (path) => {
+    readFile(path, (error, file) => {
+      if (error) throw error;
+      const relativePath = relative(process.cwd(), path);
+      console.info(`Reloading ${relativePath}...`);
+      ws.send(`change:${relativePath}:${file}`);
+    });
+  });
+});
