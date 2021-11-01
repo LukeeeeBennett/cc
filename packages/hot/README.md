@@ -1,4 +1,4 @@
-# CCash Hot
+# Hot
 
 :warning: UNDER DEVELOPMENT :warning:
 
