@@ -46,3 +46,4 @@ hot ws://<my-ngrok-domain>
 
 - Automatically create public IP when running server
 - Package server to be installed as a CLI tool without cloning source
+- Guard against source with message delimeters
