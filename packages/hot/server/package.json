@@ -8,6 +8,7 @@
     "hot": "./hot"
   },
   "dependencies": {
+    "chalk": "^4.1.2",
     "chokidar": "^3.5.2",
     "ngrok": "^4.2.2",
     "ws": "^8.2.3"

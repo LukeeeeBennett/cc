@@ -5,6 +5,7 @@ const { watch } = require("chokidar");
 const { resolve, relative } = require("path");
 const { readFile } = require("fs");
 const ngrok = require("ngrok");
+const chalk = require("chalk");
 
 const port = process.env.HOT_PORT || 8080;
 
@@ -16,7 +17,7 @@ const initServer = () => {
 
 const getPath = () => {
   if (!name) {
-    console.error("No watch path provided.");
+    console.error(chalk.red("No watch path provided."));
     process.exit(1);
   }
 
@@ -30,11 +31,22 @@ const watchPath = (name) => {
 
       const relativePath = relative(process.cwd(), path);
 
-      console.info(`Reloading ${relativePath}...`);
+      console.info(chalk.magenta(`Reloading ${relativePath}...`));
 
       ws.send(`change:${relativePath}:${file}`);
     });
   });
+};
+
+const initProxy = () => {
+  if (process.env.DISABLE_PROXY !== "true") {
+    const proxy = await ngrok.connect();
+
+    console.info(chalk.cyan(`\nAlternatively, run the following:\n`));
+    console.info(
+      chalk.bold(chalk.magenta(`hot ${proxy.replace(/^http(s)?/, "ws")}\n`))
+    );
+  }
 };
 
 (async () => {
@@ -44,25 +56,16 @@ const watchPath = (name) => {
   const server = initServer();
 
   server.on("connection", () => {
-    console.info("Client connected.");
+    console.info(chalk.bgGreen("Client connected."));
 
     watchPath(path);
   });
 
-  console.info(`\nHot server booted.\nWatching \`${path}\`...\n`);
+  console.info(chalk.white(`\nHot server booted.`));
+  console.info(chalk.gray(`Watching \`${path}\`...`));
 
-  console.info(
-    `Run \`hot ws://your_public_ip:${port}\` on your remote device.\n`
-  );
+  console.info(chalk.cyan(`\nRun the following on your remote device:\n`));
+  console.info(chalk.green(`hot ws://your_public_ip:${port}\n`));
 
-  if (process.env.DISABLE_PROXY !== "true") {
-    const proxy = await ngrok.connect();
-
-    console.info(
-      `Alternatively, run \`hot ${proxy.replace(
-        /^http(s)?/,
-        "ws"
-      )}\` on your remote device.\n`
-    );
-  }
+  initProxy();
 })();
