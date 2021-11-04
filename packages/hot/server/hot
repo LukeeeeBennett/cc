@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const { WebSocketServer } = require("ws");
+const { WebSocketServer, WebSocket } = require("ws");
 const { watch } = require("chokidar");
 const { resolve, relative, join } = require("path");
 const { readFile } = require("fs");
@@ -24,7 +24,11 @@ const getPath = (name) => {
   return resolve(process.cwd(), name);
 };
 
-const emitFile = (socket, path) => {
+const encode64 = (string) => {
+  return Buffer.from(string).toString("base64");
+};
+
+const broadcastFile = (server, path) => {
   readFile(path, (error, file) => {
     if (error) throw error;
 
@@ -32,20 +36,28 @@ const emitFile = (socket, path) => {
 
     console.info(chalk.yellow(`Reloading ${relativePath}...`));
 
-    socket.send(`change:${relativePath}:${file}`);
+    server.clients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(`change:${encode64(relativePath)}:${encode64(file)}`);
+      }
+    });
   });
 };
 
-const watchPath = (socket, name) => {
-  const watcher = watch(getPath(name));
+let watcher = null;
+
+const watchPath = (server, name) => {
+  if (watcher) return;
+
+  watcher = watch(getPath(name));
 
   watcher.on("change", async (path) => {
-    emitFile(socket, path);
+    broadcastFile(server, path);
   });
 
   watcher.on("ready", () => {
     Object.entries(watcher.getWatched()).forEach(([dir, paths]) =>
-      paths.forEach((path) => emitFile(socket, join(dir, path)))
+      paths.forEach((path) => broadcastFile(server, join(dir, path)))
     );
   });
 };
@@ -67,10 +79,10 @@ const initProxy = async () => {
 
   const server = initServer();
 
-  server.on("connection", (socket) => {
+  server.on("connection", () => {
     console.info(chalk.green("Client connected."));
 
-    watchPath(socket, path);
+    watchPath(server, path);
   });
 
   console.info(chalk.white(`\nHot server booted.`));
