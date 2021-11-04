@@ -1,6 +1,6 @@
 {
   "name": "@lbennett/hot-server",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "main": "./hot",
   "license": "MIT",
   "files": [
