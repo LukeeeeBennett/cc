@@ -1,4 +1,4 @@
-local base64 = require'blink/base64'
+os.loadAPI('/blink/base64.lua')
 
 args = {...}
 

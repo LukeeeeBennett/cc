@@ -102,7 +102,7 @@ const initProxy = async () => {
     isWatcherReady && emitAll(server);
   });
 
-  console.info(chalk.white(`\nHot server booted.`));
+  console.info(chalk.white(`\nHot server booted!`));
   console.info(chalk.gray(`Watching \`${path}\`...`));
 
   console.info(chalk.cyan(`\nRun the following on your remote device:\n`));

@@ -24,8 +24,6 @@
 --]]
 
 
-local base64 = {}
-
 local extract = _G.bit32 and _G.bit32.extract -- Lua 5.2/Lua 5.3 in compatibility mode
 if not extract then
 	if _G.bit then -- LuaJIT
@@ -54,7 +52,7 @@ if not extract then
 end
 
 
-function base64.makeencoder( s62, s63, spad )
+function makeencoder( s62, s63, spad )
 	local encoder = {}
 	for b64code, char in pairs{[0]='A','B','C','D','E','F','G','H','I','J',
 		'K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y',
@@ -66,20 +64,20 @@ function base64.makeencoder( s62, s63, spad )
 	return encoder
 end
 
-function base64.makedecoder( s62, s63, spad )
+function makedecoder( s62, s63, spad )
 	local decoder = {}
-	for b64code, charcode in pairs( base64.makeencoder( s62, s63, spad )) do
+	for b64code, charcode in pairs( makeencoder( s62, s63, spad )) do
 		decoder[charcode] = b64code
 	end
 	return decoder
 end
 
-local DEFAULT_ENCODER = base64.makeencoder()
-local DEFAULT_DECODER = base64.makedecoder()
+local DEFAULT_ENCODER = makeencoder()
+local DEFAULT_DECODER = makedecoder()
 
 local char, concat = string.char, table.concat
 
-function base64.encode( str, encoder, usecaching )
+function encode( str, encoder, usecaching )
 	encoder = encoder or DEFAULT_ENCODER
 	local t, k, n = {}, 1, #str
 	local lastn = n % 3
@@ -111,7 +109,7 @@ function base64.encode( str, encoder, usecaching )
 	return concat( t )
 end
 
-function base64.decode( b64, decoder, usecaching )
+function decode( b64, decoder, usecaching )
 	decoder = decoder or DEFAULT_DECODER
 	local pattern = '[^%w%+%/%=]'
 	if decoder then
@@ -157,8 +155,6 @@ function base64.decode( b64, decoder, usecaching )
 	end
 	return concat( t )
 end
-
-return base64
 
 --[[
 ------------------------------------------------------------------------------

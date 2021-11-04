@@ -1,9 +1,8 @@
 {
   "name": "@lbennett/hot-server",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "./hot",
   "license": "MIT",
-  "private": true,
   "bin": {
     "hot": "./hot"
   },
