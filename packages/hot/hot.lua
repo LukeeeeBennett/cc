@@ -1,4 +1,4 @@
-local base64 = require'./base64'
+local base64 = require'blink/base64'
 
 args = {...}
 
