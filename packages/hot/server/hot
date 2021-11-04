@@ -2,7 +2,7 @@
 
 const { WebSocketServer } = require("ws");
 const { watch } = require("chokidar");
-const { resolve, relative } = require("path");
+const { resolve, relative, join } = require("path");
 const { readFile } = require("fs");
 const ngrok = require("ngrok");
 const chalk = require("chalk");
@@ -15,7 +15,7 @@ const initServer = () => {
   });
 };
 
-const getPath = () => {
+const getPath = (name) => {
   if (!name) {
     console.error(chalk.red("No watch path provided."));
     process.exit(1);
@@ -24,23 +24,35 @@ const getPath = () => {
   return resolve(process.cwd(), name);
 };
 
-const watchPath = (name) => {
-  watch(getPath(name)).on("change", async (path) => {
-    readFile(path, (error, file) => {
-      if (error) throw error;
+const emitFile = (socket, path) => {
+  readFile(path, (error, file) => {
+    if (error) throw error;
 
-      const relativePath = relative(process.cwd(), path);
+    const relativePath = relative(process.cwd(), path);
 
-      console.info(chalk.magenta(`Reloading ${relativePath}...`));
+    console.info(chalk.yellow(`Reloading ${relativePath}...`));
 
-      ws.send(`change:${relativePath}:${file}`);
-    });
+    socket.send(`change:${relativePath}:${file}`);
   });
 };
 
-const initProxy = () => {
+const watchPath = (socket, name) => {
+  const watcher = watch(getPath(name));
+
+  watcher.on("change", async (path) => {
+    emitFile(socket, path);
+  });
+
+  watcher.on("ready", () => {
+    Object.entries(watcher.getWatched()).forEach(([dir, paths]) =>
+      paths.forEach((path) => emitFile(socket, join(dir, path)))
+    );
+  });
+};
+
+const initProxy = async () => {
   if (process.env.DISABLE_PROXY !== "true") {
-    const proxy = await ngrok.connect();
+    const proxy = await ngrok.connect(port);
 
     console.info(chalk.cyan(`\nAlternatively, run the following:\n`));
     console.info(
@@ -55,17 +67,17 @@ const initProxy = () => {
 
   const server = initServer();
 
-  server.on("connection", () => {
-    console.info(chalk.bgGreen("Client connected."));
+  server.on("connection", (socket) => {
+    console.info(chalk.green("Client connected."));
 
-    watchPath(path);
+    watchPath(socket, path);
   });
 
   console.info(chalk.white(`\nHot server booted.`));
   console.info(chalk.gray(`Watching \`${path}\`...`));
 
   console.info(chalk.cyan(`\nRun the following on your remote device:\n`));
-  console.info(chalk.green(`hot ws://your_public_ip:${port}\n`));
+  console.info(chalk.blue(`hot ws://your_public_ip:${port}\n`));
 
   initProxy();
 })();
