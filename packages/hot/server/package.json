@@ -3,6 +3,9 @@
   "version": "1.0.2",
   "main": "./hot",
   "license": "MIT",
+  "files": [
+    "./hot"
+  ],
   "bin": {
     "hot": "./hot"
   },
