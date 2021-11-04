@@ -45,6 +45,23 @@ const broadcastFile = (server, path) => {
 };
 
 let watcher = null;
+let hasEmittedAll = false;
+
+const emitAll = (server) => {
+  hasEmittedAll = true;
+
+  Object.entries(watcher.getWatched()).forEach(([dir, paths]) => {
+    return paths.forEach((p) => {
+      const path = join(dir, p);
+
+      if (lstatSync(path).isDirectory()) return;
+
+      return broadcastFile(server, path);
+    });
+  });
+};
+
+let isWatcherReady = false;
 
 const watchPath = (server, name) => {
   if (watcher) return;
@@ -56,15 +73,8 @@ const watchPath = (server, name) => {
   });
 
   watcher.on("ready", () => {
-    Object.entries(watcher.getWatched()).forEach(([dir, paths]) => {
-      return paths.forEach((p) => {
-        const path = join(dir, p);
-
-        if (lstatSync(path).isDirectory()) return;
-
-        return broadcastFile(server, path);
-      });
-    });
+    isWatcherReady = true;
+    hasEmittedAll || emitAll(server);
   });
 };
 
@@ -89,6 +99,7 @@ const initProxy = async () => {
     console.info(chalk.green("Client connected."));
 
     watchPath(server, path);
+    isWatcherReady && emitAll(server);
   });
 
   console.info(chalk.white(`\nHot server booted.`));
