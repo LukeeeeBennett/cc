@@ -1,0 +1,11 @@
+#!/usr/bin/env node
+
+const { WebSocketServer } = require("ws");
+
+const wss = new WebSocketServer({
+  port: 8080,
+});
+
+wss.on("connection", (ws) => {
+  console.info("Client connected.");
+});
