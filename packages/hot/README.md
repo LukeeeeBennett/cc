@@ -10,10 +10,8 @@ Make changes to code locally in your own development environment and have files 
 On your host machine (normal development environement), you should run the server.
 
 ```
-cd packages/hot/server
-yarn install
-
-./hot <path_to_file_or_dir_to_sync>
+yarn global add @lbennett/hot-server --latest
+hot <path_to_file_or_dir_to_sync>
 ```
 
 This will wait for changes in your target file/dir using [chokidar](https://github.com/paulmillr/chokidar) and emits these changes to all connected and subscribing clients.
@@ -40,6 +38,5 @@ If successful, changing files that are within the target of your hot server will
 
 # TODO
 
-- Package server to be installed as a CLI tool without cloning source
 - Guard against source with message delimeters
 - Add 2-way edits
