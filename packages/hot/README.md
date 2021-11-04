@@ -36,5 +36,6 @@ If successful, changing files that are within the target of your hot server will
 
 # TODO
 
-- Argument to not run all files if watching dir
 - Add 2-way edits
+- Handle deletes
+- Run one file but sync many

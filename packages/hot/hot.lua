@@ -12,7 +12,7 @@ function Hot:new(o)
 end
 
 function Hot:init()
-print(self.url)
+  print(self.url)
   self.ws = http.websocket(self.url)
 end
 
@@ -29,7 +29,7 @@ function Hot:listen()
 
     self:writeFile(name, content)
 
-    if (self.autoload == true) then
+    if (self.autorun == true) then
       self:runFile(name)
     end
   until false
