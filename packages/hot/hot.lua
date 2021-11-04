@@ -1,3 +1,5 @@
+local base64 = require'base64'
+
 args = {...}
 
 Hot = {url = args[1], ws = false}
@@ -22,8 +24,8 @@ function Hot:listen()
     event, url, message = os.pullEvent("websocket_message")
     local split = self:split(message, ":")
     local key = split[1]
-    local name = split[2]
-    local content = split[3]
+    local name = base64.decode(split[2])
+    local content = base64.decode(split[3])
 
     self:writeFile(name, content)
     self:runFile(name)
