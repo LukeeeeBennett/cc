@@ -3,7 +3,7 @@
 const { WebSocketServer, WebSocket } = require("ws");
 const { watch } = require("chokidar");
 const { resolve, relative, join } = require("path");
-const { readFile } = require("fs");
+const { readFile, lstatSync } = require("fs");
 const ngrok = require("ngrok");
 const chalk = require("chalk");
 
@@ -49,16 +49,22 @@ let watcher = null;
 const watchPath = (server, name) => {
   if (watcher) return;
 
-  watcher = watch(getPath(name));
+  watcher = watch(getPath(name), { ignored: /(node_modules|\.git)/ });
 
   watcher.on("change", async (path) => {
     broadcastFile(server, path);
   });
 
   watcher.on("ready", () => {
-    Object.entries(watcher.getWatched()).forEach(([dir, paths]) =>
-      paths.forEach((path) => broadcastFile(server, join(dir, path)))
-    );
+    Object.entries(watcher.getWatched()).forEach(([dir, paths]) => {
+      return paths.forEach((p) => {
+        const path = join(dir, p);
+
+        if (lstatSync(path).isDirectory()) return;
+
+        return broadcastFile(server, path);
+      });
+    });
   });
 };
 
