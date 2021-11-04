@@ -1,7 +1,5 @@
 # Hot
 
-:warning: UNDER DEVELOPMENT :warning:
-
 ## Description
 
 Hot is a hot reloader module for use in-game.
@@ -38,5 +36,5 @@ If successful, changing files that are within the target of your hot server will
 
 # TODO
 
-- Guard against source with message delimeters
+- Argument to not run all files if watching dir
 - Add 2-way edits
