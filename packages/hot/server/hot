@@ -17,7 +17,7 @@ const initServer = () => {
 
 const getPath = (name) => {
   if (!name) {
-    console.error(chalk.red("No watch path provided."));
+    console.error(chalk.bgRedBright("No watch path provided."));
     process.exit(1);
   }
 
@@ -66,7 +66,7 @@ let isWatcherReady = false;
 const watchPath = (server, name) => {
   if (watcher) return;
 
-  watcher = watch(getPath(name), { ignored: /(node_modules|\.git)/ });
+  watcher = watch(name, { ignored: /(node_modules|\.git)/ });
 
   watcher.on("change", async (path) => {
     broadcastFile(server, path);
@@ -92,13 +92,14 @@ const initProxy = async () => {
 (async () => {
   const args = process.argv.slice(2);
   const path = args[0];
+  const name = getPath(path);
 
   const server = initServer();
 
   server.on("connection", () => {
     console.info(chalk.green("Client connected."));
 
-    watchPath(server, path);
+    watchPath(server, name);
     isWatcherReady && emitAll(server);
   });
 
