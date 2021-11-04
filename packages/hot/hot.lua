@@ -2,7 +2,7 @@ os.loadAPI('/blink/base64.lua')
 
 args = {...}
 
-Hot = {url = args[1], ws = false}
+Hot = {url = args[1], autorun = args[2] == '--autorun', ws = false}
 
 function Hot:new(o)
   o = o or {}
@@ -28,7 +28,10 @@ function Hot:listen()
     local content = base64.decode(split[3])
 
     self:writeFile(name, content)
-    self:runFile(name)
+
+    if (self.autoload == true) then
+      self:runFile(name)
+    end
   until false
 end
 
