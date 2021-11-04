@@ -26,27 +26,20 @@ In-game, you can easily install the hot module using [rpm](https://github.com/Re
 rpm install hot
 ```
 
-From your ComputerCraft device's working directory, start the hot module pointed at your local-but-public websocket server.
+From your ComputerCraft device's working directory, start the hot module pointed at your local-but-public websocket server. The server will output the correct command to use when it boots.
 
 ```
-hot ws://my.public.ip:8080
+hot ws://your_public_ip:8080
 ```
 
-To simply obtain a public IP, use [ngrok](https://ngrok.com/).
+_NOTE: Set `HOT_PORT=8081` to change the server port._
 
-```
-# Host system
-ngrok http 8080
-
-# In-game device
-hot ws://<my-ngrok-domain>
-```
+It will also offer a URL from the internal [ngrok](https://ngrok.com/) proxy. Set `DISABLE_PROXY=true` to disable the internal proxy.
 
 If successful, changing files that are within the target of your hot server will have them updated on your connected devices.
 
 # TODO
 
-- Automatically run and re-run scripts that are being served by hot
-- Automatically create public IP when running server
 - Package server to be installed as a CLI tool without cloning source
 - Guard against source with message delimeters
+- Add 2-way edits

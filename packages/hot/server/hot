@@ -4,26 +4,65 @@ const { WebSocketServer } = require("ws");
 const { watch } = require("chokidar");
 const { resolve, relative } = require("path");
 const { readFile } = require("fs");
+const ngrok = require("ngrok");
 
-const wss = new WebSocketServer({
-  port: 8080,
-});
+const port = process.env.HOT_PORT || 8080;
 
-const args = process.argv.slice(2);
+const initServer = () => {
+  return new WebSocketServer({
+    port,
+  });
+};
 
-const name = args[0];
+const getPath = () => {
+  if (!name) {
+    console.error("No watch path provided.");
+    process.exit(1);
+  }
 
-const src = resolve(process.cwd(), name);
+  return resolve(process.cwd(), name);
+};
 
-wss.on("connection", (ws) => {
-  console.info("Client connected.");
-  const watcher = watch(src);
-  watcher.on("change", async (path) => {
+const watchPath = (name) => {
+  watch(getPath(name)).on("change", async (path) => {
     readFile(path, (error, file) => {
       if (error) throw error;
+
       const relativePath = relative(process.cwd(), path);
+
       console.info(`Reloading ${relativePath}...`);
+
       ws.send(`change:${relativePath}:${file}`);
     });
   });
-});
+};
+
+(async () => {
+  const args = process.argv.slice(2);
+  const path = args[0];
+
+  const server = initServer();
+
+  server.on("connection", () => {
+    console.info("Client connected.");
+
+    watchPath(path);
+  });
+
+  console.info(`\nHot server booted.\nWatching \`${path}\`...\n`);
+
+  console.info(
+    `Run \`hot ws://your_public_ip:${port}\` on your remote device.\n`
+  );
+
+  if (process.env.DISABLE_PROXY !== "true") {
+    const proxy = await ngrok.connect();
+
+    console.info(
+      `Alternatively, run \`hot ${proxy.replace(
+        /^http(s)?/,
+        "ws"
+      )}\` on your remote device.\n`
+    );
+  }
+})();
