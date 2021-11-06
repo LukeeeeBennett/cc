@@ -19,25 +19,26 @@ function Slam:scan()
 
   rootNode = self.graph.root
 
-  rootNode.front = turtle.inspect()
-  rootNode.top = turtle.inspectUp()
-  rootNode.bottom = turtle.inspectDown()
+  local front = Node:new({ inspectionData = turtle.inspect()  })
+  local top = Node:new({ inspectionData = turtle.inspectUp()  })
+  local bottom = Node:new({ inspectionData = turtle.inspectUp()  })
 
-  turtle.turnLeft()
-  rootNode.left = turtle.inspect()
-
-  turtle.turnLeft()
-  rootNode.back = turtle.inspect()
-
-  turtle.turnLeft()
-  rootNode.right = turtle.inspect()
-
-  turtle.turnLeft()
+  rootNode.attachEdge('front', front)
+  rootNode.attachEdge('top', top)
+  rootNode.attachEdge('bottom', bottom)
 
   turtle.forward()
 
-  print(rootNode.left)
-  print('and')
+  currentNode = front
+
+  local currentFront = Node:new({ inspectionData = turtle.inspect()  })
+  local currentTop = Node:new({ inspectionData = turtle.inspectUp()  })
+  local currentBottom = Node:new({ inspectionData = turtle.inspectUp()  })
+
+  currentNode.attachEdge('front', currentFront)
+  currentNode.attachEdge('top', currentTop)
+  currentNode.attachEdge('bottom', currentBottom)
+
   print(rootNode)
 end
 

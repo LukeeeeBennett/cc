@@ -1,5 +1,4 @@
 local Node = require('node')
--- local Edge = require('edge')
 
 Graph = { root = false }
 
