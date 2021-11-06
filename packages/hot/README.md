@@ -40,4 +40,4 @@ If successful, changing files that are within the target of your hot server will
 
 - Add 2-way edits
 - Handle deletes
-- Run one file but sync many
+- Set server in dotfile
