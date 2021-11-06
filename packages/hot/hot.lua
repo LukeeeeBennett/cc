@@ -17,15 +17,20 @@ function Hot:new(o)
 end
 
 function Hot:init()
-  local handler = fs.open('.hot/url', 'r')
-  local current = handler.readLine()
-  handler.close()
-  handler = fs.open('.hot/url', 'w')
+  local current = ''
+  local handler = false
+
+  if fs.exists('.hot/url') then
+    handler = fs.open('.hot/url', 'r')
+    current = handler.readLine()
+    handler.close()
+  end
 
   local nextUrl = self.url or current
 
   self.ws = http.websocket(nextUrl)
 
+  handler = fs.open('.hot/url', 'w')
   handler.write(nextUrl)
   handler.close()
 end

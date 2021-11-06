@@ -15,16 +15,22 @@ function Slam:new(o)
 end
 
 function Slam:connect(url)
-  local handler = fs.open('.slam/url', "r" and "w")
-  local current = handler.readAll()
-  local newUrl = url or self.url
+  local current = ''
+  local handler = false
 
-  self.ws = http.websocket(newUrl or current)
-
-  if (current !== newUrl) then
-    handler.write(newUrl)
+  if fs.exists('.slam/url') then
+    handler = fs.open('.slam/url', 'r')
+    current = handler.readLine()
     handler.close()
   end
+
+  local nextUrl = self.url or current
+
+  self.ws = http.websocket(nextUrl)
+
+  handler = fs.open('.slam/url', 'w')
+  handler.write(nextUrl)
+  handler.close()
 end
 
 function Slam:scan()
