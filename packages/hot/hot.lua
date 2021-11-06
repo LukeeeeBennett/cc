@@ -3,7 +3,11 @@ os.loadAPI('/blink/strings.lua')
 
 args = {...}
 
-Hot = {url = args[1], autorun = args[2], ws = false}
+Hot = {
+  url = args[1],
+  autorun = args[2],
+  ws = false
+}
 
 function Hot:new(o)
   o = o or {}
@@ -13,7 +17,6 @@ function Hot:new(o)
 end
 
 function Hot:init()
-  print(self.url)
   self.ws = http.websocket(self.url)
 end
 
@@ -32,9 +35,8 @@ function Hot:listen()
 
     if (self.autorun == '--autorun' and strings.endsWith(name, '.lua')) then
       self:runFile(name)
-    else if (self.autorun and strings.startsWith(self.autorun, '--autorun='))
-      print('Autorun specific')
-      self:runFile(self.autorun:sub(#'--autorun=', #self.autorun))
+    elseif (self.autorun and strings.startsWith(self.autorun, '--autorun=')) then
+      self:runFile(self.autorun:sub((#'--autorun=') + 1, #self.autorun))
     end
   until false
 end
@@ -48,7 +50,8 @@ function Hot:writeFile(name, content)
 end
 
 function Hot:runFile(name)
-    shell.run(name)
+  print("Running", name)
+  shell.run(name)
 end
 
 function Hot:split(s, delimiter)
