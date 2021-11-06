@@ -1,5 +1,7 @@
-strings = {}
+function startsWith(str, start)
+  return str:sub(1, #start) == start
+end
 
-function strings.starts(String,Start)
-   return string.sub(String,1,string.len(Start))==Start
+function endsWith(str, ends)
+  return str:sub(-#ends) == ends
 end
