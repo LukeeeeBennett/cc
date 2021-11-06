@@ -33,10 +33,12 @@ function Hot:listen()
 
     self:writeFile(name, content)
 
-    if (self.autorun == '--autorun' and strings.endsWith(name, '.lua')) then
-      self:runFile(name)
-    elseif (self.autorun and strings.startsWith(self.autorun, '--autorun=')) then
-      self:runFile(self.autorun:sub((#'--autorun=') + 1, #self.autorun))
+    if (self.autorun and strings.endsWith(name, '.lua')) then
+      if (self.autorun == '--autorun') then
+        self:runFile(name)
+      elseif (strings.startsWith(self.autorun, '--autorun=')) then
+        self:runFile(self.autorun:sub((#'--autorun=') + 1, #self.autorun))
+      end
     end
   until false
 end
