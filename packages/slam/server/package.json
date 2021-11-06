@@ -1,6 +1,6 @@
 {
   "name": "@lbennett/slam-server",
-  "version": "1.0.4",
+  "version": "1.0.0",
   "main": "./slam",
   "license": "MIT",
   "files": [
