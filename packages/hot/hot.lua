@@ -17,15 +17,18 @@ function Hot:new(o)
 end
 
 function Hot:init()
-  local handler = fs.open('.hot/url', "r" and "w")
+  local handler = fs.open('.hot/url', "r")
   local current = handler.readAll()
+  handler.close()
+  handler = fs.open('.hot/url', "w")
 
   self.ws = http.websocket(self.url or current)
 
-  if (current !== self.url) then
+  if (current ~= self.url) then
     handler.write(self.url)
-    handler.close()
   end
+
+  handler.close()
 end
 
 function Hot:listen()
