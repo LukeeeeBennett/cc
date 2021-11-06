@@ -1,0 +1,63 @@
+#!/usr/bin/env node
+
+const { WebSocketServer, WebSocket } = require("ws");
+const ngrok = require("ngrok");
+const chalk = require("chalk");
+
+const port = process.env.SLAM_PORT || 8081;
+
+const initServer = () => {
+  return new WebSocketServer({
+    port,
+  });
+};
+
+const encode64 = (string) => {
+  return Buffer.from(string).toString("base64");
+};
+
+const broadcastSlam = (server, slam) => {
+  console.info(chalk.yellow(`Broadcasting...`));
+
+  server.clients.forEach((client) => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(`slam:sync:${encode64(slam)}`);
+    }
+  });
+};
+
+const initProxy = async () => {
+  if (process.env.DISABLE_PROXY !== "true") {
+    const proxy = await ngrok.connect(port);
+
+    console.info(chalk.cyan(`\nAlternatively, run the following:\n`));
+    console.info(
+      chalk.bold(
+        chalk.magenta(`slam server ${proxy.replace(/^http(s)?/, "ws")}\n`)
+      )
+    );
+  }
+};
+
+(async () => {
+  const server = initServer();
+
+  server.on("connection", () => {
+    console.info(chalk.green("Client connected."));
+  });
+
+  server.on("slam:update", (message) => {
+    console.log("\n\nslam:update received\n");
+    console.log(message);
+    console.log("\ndone\n\n");
+
+    broadcastSlam(server, message);
+  });
+
+  console.info(chalk.white(`\nSLAM server booted!`));
+
+  console.info(chalk.cyan(`\nRun the following on your remote devices:\n`));
+  console.info(chalk.blue(`slam server ws://your_public_ip:${port}\n`));
+
+  initProxy();
+})();

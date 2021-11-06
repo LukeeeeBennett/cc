@@ -23,19 +23,19 @@ function Node:attachEdge(face, to)
   if face == 'front' then
     self.front = edge;
     to.back = edge;
-  else if face == 'back' then
+  elseif face == 'back' then
     self.back = edge;
     to.front = edge;
-  else if face == 'left' then
+  elseif face == 'left' then
     self.left = edge;
     to.right = edge;
-  else if face == 'right' then
+  elseif face == 'right' then
     self.right = edge;
     to.left = edge;
-  else if face == 'top' then
+  elseif face == 'top' then
     self.top = edge;
     to.bottom = edge;
-  else if face == 'bottom' then
+  elseif face == 'bottom' then
     self.bottom = edge;
     to.top = edge;
   end

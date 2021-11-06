@@ -11,6 +11,8 @@ end
 
 function Graph:init()
   self.root = Node:new()
+
+  return self.root
 end
 
 return Graph

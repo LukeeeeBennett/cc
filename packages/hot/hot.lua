@@ -17,7 +17,15 @@ function Hot:new(o)
 end
 
 function Hot:init()
-  self.ws = http.websocket(self.url)
+  local handler = fs.open('.hot/url', "r" and "w")
+  local current = handler.readAll()
+
+  self.ws = http.websocket(self.url or current)
+
+  if (current !== self.url) then
+    handler.write(self.url)
+    handler.close()
+  end
 end
 
 function Hot:listen()
@@ -32,6 +40,7 @@ function Hot:listen()
     local content = base64.decode(split[3])
 
     self:writeFile(name, content)
+    print("Reloaded", name)
 
     if self.autorun and strings.endsWith(name, '.lua') then
       if self.autorun == '--autorun' then
@@ -47,8 +56,6 @@ function Hot:writeFile(name, content)
   local handler = fs.open(name, "w")
   handler.write(content)
   handler.close()
-
-  print("Reloaded", name)
 end
 
 function Hot:runFile(name)
