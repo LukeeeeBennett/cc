@@ -17,33 +17,34 @@ function Hot:new(o)
 end
 
 function Hot:init()
-  local handler = fs.open('.hot/url', "r")
-  local current = handler.readAll()
+  local handler = fs.open('.hot/url', 'r')
+  local current = handler.readLine()
   handler.close()
-  handler = fs.open('.hot/url', "w")
+  handler = fs.open('.hot/url', 'w')
 
-  self.ws = http.websocket(self.url or current)
+  local nextUrl = self.url or current
 
-  if (current ~= self.url) then
-    handler.write(self.url)
-  end
+  self.ws = http.websocket(nextUrl)
 
+  handler.write(nextUrl)
   handler.close()
 end
 
 function Hot:listen()
   self:init()
 
+  print('Listening...')
+
   local event, url, message
   repeat
-    event, url, message = os.pullEvent("websocket_message")
-    local split = self:split(message, ":")
+    event, url, message = os.pullEvent('websocket_message')
+    local split = self:split(message, ':')
     local key = split[1]
     local name = base64.decode(split[2])
     local content = base64.decode(split[3])
 
     self:writeFile(name, content)
-    print("Reloaded", name)
+    print('Synced', name)
 
     if self.autorun and strings.endsWith(name, '.lua') then
       if self.autorun == '--autorun' then
@@ -56,13 +57,13 @@ function Hot:listen()
 end
 
 function Hot:writeFile(name, content)
-  local handler = fs.open(name, "w")
+  local handler = fs.open(name, 'w')
   handler.write(content)
   handler.close()
 end
 
 function Hot:runFile(name)
-  print("Running", name)
+  print('Running', name)
   shell.run(name)
 end
 
