@@ -26,10 +26,12 @@ From your ComputerCraft device's working directory, start the hot module pointed
 
 ```
 hot ws://your_public_ip:8080
+
+--autorun # Run all synced files
+--autorun=./dir/file.lua # Run a specific synced file
 ```
 
 _NOTE: Set `HOT_PORT=8081` to change the server port._
-
 It will also offer a URL from the internal [ngrok](https://ngrok.com/) proxy. Set `DISABLE_PROXY=true` to disable the internal proxy.
 
 If successful, changing files that are within the target of your hot server will have them updated on your connected devices.

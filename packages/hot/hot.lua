@@ -1,8 +1,9 @@
 os.loadAPI('/blink/base64.lua')
+os.loadAPI('/blink/strings.lua')
 
 args = {...}
 
-Hot = {url = args[1], autorun = args[2] == '--autorun', ws = false}
+Hot = {url = args[1], autorun = args[2], ws = false}
 
 function Hot:new(o)
   o = o or {}
@@ -29,8 +30,10 @@ function Hot:listen()
 
     self:writeFile(name, content)
 
-    if (self.autorun == true) then
+    if (self.autorun == '--autorun') then
       self:runFile(name)
+    else if (strings.starts(self.autorun, '--autorun='))
+      print('Autorun specific')
     end
   until false
 end
