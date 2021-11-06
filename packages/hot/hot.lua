@@ -49,7 +49,7 @@ function Hot:listen()
     local content = base64.decode(split[3])
 
     self:writeFile(name, content)
-    print('Synced', name)
+    print('Reloaded', name)
 
     if self.autorun and strings.endsWith(name, '.lua') then
       if self.autorun == '--autorun' then
