@@ -36,7 +36,7 @@ It will also offer a URL from the internal [ngrok](https://ngrok.com/) proxy. Se
 
 If successful, changing files that are within the target of your hot server will have them updated on your connected devices.
 
-# TODO
+## TODO
 
 - Add 2-way edits
 - Handle deletes
