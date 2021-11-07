@@ -29,10 +29,34 @@ slam server ws://<your_slam_server_ip>
 Start a scan with
 
 ```
-slam scan
+slam scan <start_x> <start_y> <start_z> <heading>
 ```
 
-# TODO
+_NOTE: `x`, `y` and `z` are the starting coords of the device._ `heading` is either `n`, `e`, `s` or `w` depending on how the device is oriented.
 
-- Add `slam server`
-- Add `slam scan`
+## Development
+
+```
+ ---BACK--
+|   NODE  |
+|    A    |
+|         |
+ --FRONT--
+     |
+     | HEAD
+     |
+    ---
+   | E | (
+   | D |   if direction needed:
+   | G |     'head->tail', 'head<-tail', 'head<->tail'
+   | E | )
+    ---
+     |
+     | TAIL
+     |
+ ---BACK--
+|   NODE  |
+|    B    |
+|         |
+ --FRONT--
+```

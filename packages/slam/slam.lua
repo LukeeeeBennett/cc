@@ -1,11 +1,16 @@
-JSON = (loadfile "/blink/json.lua")()
-
 local Graph = require('graph')
+local SyncVisitor = require('visitors.sync-visitor')
+local Device = require('device')
+local Position = require('position')
+local Node = require('node')
 
-args = {...}
+local args = {...}
 
-local command = args[1]
-local url = args[2]
+local commandArg = args[1]
+local firstArg = args[2]
+local secondArg = args[3]
+local thirdArg = args[4]
+local fourthArg = args[5]
 
 Slam = { graph = Graph:new(), ws = false }
 
@@ -13,6 +18,7 @@ function Slam:new(o)
   o = o or {}
   setmetatable(o, self)
   self.__index = self
+  self.type = 'Slam'
   return o
 end
 
@@ -28,7 +34,7 @@ function Slam:connect(url)
 
   local nextUrl = url or current
 
-  local ws, err = http.websocket(nextUrl)
+  local ws = http.websocket(nextUrl)
 
   self.ws = ws
 
@@ -37,66 +43,37 @@ function Slam:connect(url)
   handler.close()
 end
 
-function Slam:scan()
-  rootNode = self.graph:init()
+function Slam:scan(x, y, z, heading)
+  local device = Device:new({ node = Node:new({ position = Position:new({x = x, y = y, z = z}) }), heading = heading })
 
-  local front = Node:new({ inspectionData = turtle.inspect()  })
-  local top = Node:new({ inspectionData = turtle.inspectUp()  })
-  local bottom = Node:new({ inspectionData = turtle.inspectUp()  })
+  self.graph:init(x, y, z)
 
-  rootNode:attachEdge('front', front)
-  rootNode:attachEdge('top', top)
-  rootNode:attachEdge('bottom', bottom)
+  print('Starting scan...')
 
-  turtle.forward()
+  device:scan(self.graph)
 
-  local currentFront = Node:new({ inspectionData = turtle.inspect()  })
-  local currentTop = Node:new({ inspectionData = turtle.inspectUp()  })
-  local currentBottom = Node:new({ inspectionData = turtle.inspectUp()  })
+  print('Sending scan results...')
 
-  local currentNode = rootNode.front.tail
+  local syncResult = self.graph:accept(SyncVisitor:new())
 
-  currentNode:attachEdge('front', currentFront)
-  currentNode:attachEdge('top', currentTop)
-  currentNode:attachEdge('bottom', currentBottom)
+  print('syncResult', syncResult)
 
-  print(rootNode)
-
-  print()
-  print('node:')
-  print('  front:', rootNode.front)
-  print('      next-front:', currentNode.front)
-  print('  back:', rootNode.back)
-  print('      next-back:', currentNode.back)
-  print('  top:', rootNode.top)
-  print('      next-top:', currentNode.top)
-  print('  bottom:', rootNode.bottom)
-  print('      next-bottom:', currentNode.bottom)
-  print('  left:', rootNode.left)
-  print('      next-left:', currentNode.left)
-  print('  right:', rootNode.right)
-  print('      next-right:', currentNode.right)
-  print()
-
-  print('sending...')
-  self.ws.send(JSON:encode(rootNode))
-  self.ws.close()
-  print('sent')
-
-  turtle.turnLeft()
-  turtle.turnLeft()
+  if self.ws and syncResult then
+    self.ws.send(syncResult)
+    print('Scan results sent.', syncResult)
+    self.ws.close()
+  end
 end
 
 function main()
-  slam = Slam:new()
+  local slam = Slam:new()
 
-  if command == 'server' then
-    slam:connect(url)
-    return
+  if commandArg == 'server' then
+    return slam:connect(firstArg)
+  elseif commandArg == 'scan' then
+    slam:connect()
+    return slam:scan(firstArg, secondArg, thirdArg, fourthArg)
   end
-
-  slam:connect()
-  return slam:scan()
 end
 
 main()
