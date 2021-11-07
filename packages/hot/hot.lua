@@ -28,7 +28,9 @@ function Hot:init()
 
   local nextUrl = self.url or current
 
-  self.ws = http.websocket(nextUrl)
+  local ws, err = http.websocket(nextUrl)
+
+  self.ws = ws
 
   handler = fs.open('.hot/url', 'w')
   handler.write(nextUrl)
@@ -59,6 +61,8 @@ function Hot:listen()
       end
     end
   until false
+
+  self.ws.close()
 end
 
 function Hot:writeFile(name, content)

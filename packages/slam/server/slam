@@ -42,16 +42,15 @@ const initProxy = async () => {
 (async () => {
   const server = initServer();
 
-  server.on("connection", () => {
+  server.on("connection", (ws) => {
     console.info(chalk.green("Client connected."));
-  });
 
-  server.on("slam:update", (message) => {
-    console.log("\n\nslam:update received\n");
-    console.log(message);
-    console.log("\ndone\n\n");
-
-    broadcastSlam(server, message);
+    ws.on("message", (message) => {
+      console.log("got inner");
+      console.log("inner", message.toString());
+      console.log("inner done");
+      // broadcastSlam(server, message);
+    });
   });
 
   console.info(chalk.white(`\nSLAM server booted!`));

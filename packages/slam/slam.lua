@@ -1,3 +1,5 @@
+JSON = (loadfile "/blink/json.lua")()
+
 local Graph = require('graph')
 
 args = {...}
@@ -24,9 +26,11 @@ function Slam:connect(url)
     handler.close()
   end
 
-  local nextUrl = self.url or current
+  local nextUrl = url or current
 
-  self.ws = http.websocket(nextUrl)
+  local ws, err = http.websocket(nextUrl)
+
+  self.ws = ws
 
   handler = fs.open('.slam/url', 'w')
   handler.write(nextUrl)
@@ -73,6 +77,11 @@ function Slam:scan()
   print('  right:', rootNode.right)
   print('      next-right:', currentNode.right)
   print()
+
+  print('sending...')
+  self.ws.send(JSON:encode(rootNode))
+  self.ws.close()
+  print('sent')
 
   turtle.turnLeft()
   turtle.turnLeft()
