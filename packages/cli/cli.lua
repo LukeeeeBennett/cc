@@ -5,7 +5,7 @@ function parseFlags(args)
   local flags = {}
 
   for _, a in ipairs(args) do
-    local flag, value = a:match('^--(.+)=(.+)')
+    local flag, value = a:match('^--([a-zA-Z_]+)=(.+)')
 
     if flag then
       flags[flag] = value
