@@ -20,7 +20,7 @@ function Inspector:visitEdge(edge, parent)
   local inspectable = false
 
   parent.route = parent.route or {}
-  table.insert(parent.route, parent)
+  table.insert(parent.route, edge)
   edge.route = parent.route
 
   for _, name in ipairs(edge.names) do
@@ -43,6 +43,10 @@ end
 function Inspector:visitNode(node, parent)
 
   local inspectable = false
+
+  parent.route = parent and parent.route or {}
+  table.insert(parent.route, node)
+  node.route = parent.route
 
   for _, face in ipairs(node.faces) do
 

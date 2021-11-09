@@ -10,6 +10,7 @@ Hot = {
   url = commands[0],
   autorun = flags.autorun,
   ignore = flags.ignore,
+  once = flags.once,
   ws = false
 }
 
@@ -46,9 +47,15 @@ function Hot:listen()
 
   print('Listening...')
 
+  local resolution = false
+
   local _, _, message
   repeat
     _, _, message = os.pullEvent('websocket_message')
+    if self.once then
+      resolution = true
+    end
+
     local split = self:split(message, ':')
     local name = base64.decode(split[2])
     local content = base64.decode(split[3])
@@ -67,7 +74,7 @@ function Hot:listen()
         end
       end
     end
-  until false
+  until resolution
 
   self.ws.close()
 end
