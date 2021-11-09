@@ -1,5 +1,7 @@
+os.loadAPI('/blink/base64.lua')
+
 local Graph = require('graph')
-local SyncVisitor = require('visitors.sync-visitor')
+local Serializer = require('visitors.serializer')
 local Device = require('device')
 local Position = require('position')
 local Node = require('node')
@@ -44,9 +46,10 @@ function Slam:connect(url)
 end
 
 function Slam:scan(x, y, z, heading)
-  local device = Device:new({ node = Node:new({ position = Position:new({x = x, y = y, z = z}) }), heading = heading })
+  local root = Node:new({ position = Position:new({ x = x, y = y, z = z }) })
+  local device = Device:new({ node = root, heading = heading })
 
-  self.graph:init(x, y, z)
+  self.graph:init(root)
 
   print('Starting scan...')
 
@@ -54,13 +57,11 @@ function Slam:scan(x, y, z, heading)
 
   print('Sending scan results...')
 
-  local syncResult = self.graph:accept(SyncVisitor:new())
+  local payload = self.graph:accept(Serializer:new())
 
-  print('syncResult', syncResult)
-
-  if self.ws and syncResult then
-    self.ws.send(syncResult)
-    print('Scan results sent.', syncResult)
+  if self.ws and payload then
+    self.ws.send('slam:sync:' .. base64.encode(payload))
+    print('Scan results sent.')
     self.ws.close()
   end
 end

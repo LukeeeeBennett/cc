@@ -16,6 +16,10 @@ const encode64 = (string) => {
   return Buffer.from(string).toString("base64");
 };
 
+const decode64 = (string) => {
+  return Buffer.from(string, "base64").toString("ascii");
+};
+
 const broadcastSlam = (server, slam) => {
   console.info(chalk.yellow(`Broadcasting...`));
 
@@ -39,6 +43,19 @@ const initProxy = async () => {
   }
 };
 
+const handleSync = async (message) => {
+  const payload = JSON.parse(decode64(message.replace(/^slam:sync:/, "")));
+
+  console.log("handleSync payload", payload);
+
+  console.log("root position:", payload.root.position);
+  payload.root.front &&
+    payload.root.front.tail &&
+    console.log("one step forward:", payload.root.front.tail.position);
+
+  // broadcastSlam(server, message);
+};
+
 (async () => {
   const server = initServer();
 
@@ -46,10 +63,11 @@ const initProxy = async () => {
     console.info(chalk.green("Client connected."));
 
     ws.on("message", (message) => {
-      console.log("got inner");
-      console.log("inner", message.toString());
-      console.log("inner done");
-      // broadcastSlam(server, message);
+      const messageStr = message.toString();
+
+      if (messageStr.startsWith("slam:sync:")) {
+        handleSync(messageStr);
+      }
     });
   });
 

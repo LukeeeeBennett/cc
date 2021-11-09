@@ -1,0 +1,106 @@
+{
+  "root": {
+    "position": { "1": "x", "2": "y", "3": "z" },
+    "inspection": false,
+    "front": {
+      "direction": "<->",
+      "head": "[ CIRCULAR ]",
+      "tail": {
+        "position": { "1": "x", "2": "y", "3": "z" },
+        "inspection": false,
+        "front": {
+          "direction": "<->",
+          "head": "[ CIRCULAR ]",
+          "tail": {
+            "position": { "1": "x", "2": "y", "3": "z" },
+            "inspection": {
+              "name": "minecraft:wheat",
+              "tags": {
+                "twilightforest:portal/decoration": true,
+                "minecraft:bee_growables": true,
+                "minecraft:crops": true
+              },
+              "state": { "age": 7 }
+            },
+            "front": false,
+            "back": "[ CIRCULAR ]",
+            "left": false,
+            "right": false,
+            "top": false,
+            "bottom": false
+          }
+        },
+        "back": "[ CIRCULAR ]",
+        "left": false,
+        "right": false,
+        "top": {
+          "direction": "<->",
+          "head": "[ CIRCULAR ]",
+          "tail": {
+            "position": { "1": "x", "2": "y", "3": "z" },
+            "inspection": false,
+            "front": false,
+            "back": false,
+            "left": false,
+            "right": false,
+            "top": false,
+            "bottom": "[ CIRCULAR ]"
+          }
+        },
+        "bottom": {
+          "direction": "<->",
+          "head": "[ CIRCULAR ]",
+          "tail": {
+            "position": { "1": "x", "2": "y", "3": "z" },
+            "inspection": {
+              "name": "minecraft:spruce_planks",
+              "tags": { "minecraft:planks": true },
+              "state": {}
+            },
+            "front": false,
+            "back": false,
+            "left": false,
+            "right": false,
+            "top": "[ CIRCULAR ]",
+            "bottom": false
+          }
+        }
+      }
+    },
+    "back": false,
+    "left": false,
+    "right": false,
+    "top": {
+      "direction": "<->",
+      "head": "[ CIRCULAR ]",
+      "tail": {
+        "position": { "1": "x", "2": "y", "3": "z" },
+        "inspection": false,
+        "front": false,
+        "back": false,
+        "left": false,
+        "right": false,
+        "top": false,
+        "bottom": "[ CIRCULAR ]"
+      }
+    },
+    "bottom": {
+      "direction": "<->",
+      "head": "[ CIRCULAR ]",
+      "tail": {
+        "position": { "1": "x", "2": "y", "3": "z" },
+        "inspection": {
+          "name": "minecraft:spruce_planks",
+          "tags": { "minecraft:planks": true },
+          "state": {}
+        },
+        "front": false,
+        "back": false,
+        "left": false,
+        "right": false,
+        "top": "[ CIRCULAR ]",
+        "bottom": false
+      }
+    }
+  }
+}
