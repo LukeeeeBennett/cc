@@ -1,11 +1,15 @@
 os.loadAPI('/blink/base64.lua')
 os.loadAPI('/blink/strings.lua')
+os.loadAPI('/blink/cli.lua')
 
 args = {...}
 
+local commands, flags = cli.parseFlags(args)
+
 Hot = {
-  url = args[1],
-  autorun = args[2],
+  url = commands[0],
+  autorun = flags.autorun,
+  ignore = flags.ignore,
   ws = false
 }
 
@@ -28,7 +32,7 @@ function Hot:init()
 
   local nextUrl = self.url or current
 
-  local ws, err = http.websocket(nextUrl)
+  local ws = http.websocket(nextUrl)
 
   self.ws = ws
 
@@ -49,6 +53,11 @@ function Hot:listen()
     local key = split[1]
     local name = base64.decode(split[2])
     local content = base64.decode(split[3])
+
+    if self.ignore and name:match(self.ignore) then
+      print('Ignoring', name)
+      return
+    end
 
     self:writeFile(name, content)
     print('Reloaded', name)
@@ -87,7 +96,7 @@ end
 
 
 function main()
-  hot = Hot:new()
+  local hot = Hot:new()
 
   return hot:listen()
 end
