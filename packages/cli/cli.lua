@@ -5,11 +5,11 @@ function parseFlags(args)
   local flags = {}
 
   for _, a in ipairs(args) do
-    local flag, value = a:match('^--([a-zA-Z_]+)=?(.*)')
+    local flag, value = a:match('^-{1,2}([a-zA-Z_]+)=?(.*)')
 
     if flag then
-      flags[flag] = (value == 'true' and true) or (value == 'false' and false) or value
-    else
+      flags[flag] = (((value == 'true') and true) or ((value == 'false') and false)) or ((value ~= false) and value)
+    elseif a then
       table.insert(commands, a)
     end
   end
