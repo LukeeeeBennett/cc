@@ -46,27 +46,25 @@ function Hot:listen()
 
   print('Listening...')
 
-  local event, url, message
+  local _, _, message
   repeat
-    event, url, message = os.pullEvent('websocket_message')
+    _, _, message = os.pullEvent('websocket_message')
     local split = self:split(message, ':')
-    local key = split[1]
     local name = base64.decode(split[2])
     local content = base64.decode(split[3])
 
     if self.ignore and name:match(self.ignore) then
       print('Ignoring', name)
-      return
-    end
+    else
+      self:writeFile(name, content)
+      print('Reloaded', name)
 
-    self:writeFile(name, content)
-    print('Reloaded', name)
-
-    if self.autorun and strings.endsWith(name, '.lua') then
-      if self.autorun == '--autorun' then
-        self:runFile(name)
-      elseif strings.startsWith(self.autorun, '--autorun=') then
-        self:runFile(self.autorun:sub((#'--autorun=') + 1, #self.autorun))
+      if self.autorun and strings.endsWith(name, '.lua') then
+        if self.autorun == '--autorun' then
+          self:runFile(name)
+        elseif strings.startsWith(self.autorun, '--autorun=') then
+          self:runFile(self.autorun:sub((#'--autorun=') + 1, #self.autorun))
+        end
       end
     end
   until false
