@@ -2,7 +2,7 @@
 
 ## Description
 
-Hot is a SLAM graph module. Have a turtle generate a graph data structure of any unknown environment. There is an additional server provided to share slam across a network of bots.
+Have a turtle generate a graph data structure of any unknown environment. There is an additional server provided to share slam across a network of bots.
 
 On your host machine (normal development environement), you should run the server.
 
