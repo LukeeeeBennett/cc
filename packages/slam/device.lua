@@ -72,14 +72,8 @@ end
 function Device:follow(heading, node, route)
   for _, step in ipairs(route) do
     for _, axis in ipairs(step.position.axes) do
-      if not node then
-        print('move', node, step, axis, self:generateID(node))
-      end
-
       if step.position[axis] ~= node.position[axis] then
-
         heading, node = self:move(heading, node, axis, step.position[axis] - node.position[axis])
-        print('node afta', heading, node)
       end
     end
   end
@@ -155,8 +149,8 @@ function Device:move(heading, node, axis, value)
 
   for i = steps, 1, -1 do
     turtle.forward()
--- TODO: this is false, but why
--- we shouldnt be routing to some uninspected face mid way through the route. see what is going on there
+    -- TODO: this is false,
+    -- we shouldnt be routing to some uninspected face mid way through the route
     node = node:getChildren()[self:calcFace(axis, value)]
   end
 
@@ -172,23 +166,19 @@ function Device:generateID(node)
 end
 
 function Device:scan(heading, node)
-  print('[  -- scan reset -- ] at', self:generateID(node))
+  print('[  -- scan -- ] at', self:generateID(node))
 
   local next, faces, route = Inspector:new():find(node)
 
   if route and #route > 0 then
     print('follow', #route, heading, node)
     heading, node = self:follow(heading, node, route)
-    print('follow ret', #route, heading, self:generateID(node))
   end
 
   if faces and #faces then
     print('inspect', #faces)
     heading, node = self:inspect(heading, node, faces)
-    print('inspect ret', #faces, heading, self:generateID(node))
   end
-
-  print('has more?', route and #route, faces and #faces, heading, self:generateID(node))
 
   if ((route and #route > 0) or (faces and #faces > 0) or false) then
     return self:scan(heading, node)
