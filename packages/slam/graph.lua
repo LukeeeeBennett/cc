@@ -16,8 +16,4 @@ function Graph:accept(visitor)
   return visitor:visitGraph(self)
 end
 
-function Graph:init(root)
-  self.root = root
-end
-
 return Graph

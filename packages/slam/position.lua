@@ -10,7 +10,11 @@ function Position:new(o)
   self.__index = self
 
   self.type = 'Position'
-  self.axes = {'x', 'y', 'z'}
+  self.axes = {
+    'x',
+    -- 'y',
+    'z',
+  }
 
   return o
 end

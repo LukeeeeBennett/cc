@@ -57,4 +57,14 @@ function Node:attachEdge(face, to)
   end
 end
 
+function Node:getChildren()
+  local res = {}
+
+  for _, face in ipairs(self.faces) do
+    res[face] = self[face] and ((self[face].tail ~= self and self[face].tail) or self[face].head)
+  end
+
+  return res
+end
+
 return Node

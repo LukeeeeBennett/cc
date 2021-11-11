@@ -1,7 +1,7 @@
 local Inspection = require('inspection')
-local Inspector = require('visitors.inspector')
+local Inspector = require('iterators.inspector')
 
-Device = { node = false, heading = false, ws = false }
+Device = { ws = false }
 
 function Device:new(o)
   o = o or {}
@@ -13,8 +13,8 @@ function Device:new(o)
   return o
 end
 
-function Device:inspect()
-  for _, face in ipairs({
+function Device:inspect(heading, node, faces)
+  for _, face in ipairs(faces or {
     'front',
     -- 'top',
     -- 'bottom',
@@ -24,9 +24,10 @@ function Device:inspect()
   }) do
     local success = false
     local inspect = {}
-    local position = Position:new({ x = self.node.position.x, y = self.node.position.y, z = self.node.position.z })
+    local position = Position:new({ x = node.position.x, y = node.position.y, z = node.position.z })
 
     if face == 'front' then
+      heading = self:look(heading, 'n')
       success, inspect = turtle.inspect()
       position.z = position.z - 1
     -- elseif face == 'top' then
@@ -36,22 +37,17 @@ function Device:inspect()
     --   success, inspect = turtle.inspectDown()
     --   position.y = position.y - 1
     elseif face == 'left' then
-      turtle.turnLeft()
+      heading = self:look(heading, 'w')
       success, inspect = turtle.inspect()
       position.x = position.x - 1
-      turtle.turnRight()
     elseif face == 'right' then
-      turtle.turnRight()
+      heading = self:look(heading, 'e')
       success, inspect = turtle.inspect()
       position.x = position.x + 1
-      turtle.turnLeft()
     elseif face == 'back' then
-      turtle.turnLeft()
-      turtle.turnLeft()
+      heading = self:look(heading, 's')
       success, inspect = turtle.inspect()
       position.z = position.z + 1
-      turtle.turnRight()
-      turtle.turnRight()
     end
 
     local inspection = false
@@ -59,78 +55,144 @@ function Device:inspect()
       inspection = Inspection:new(inspect)
     end
 
-    self.node:attachEdge(face, Node:new({ position = position, inspection = inspection }))
-  end
-end
+    local existing = node:getChildren()[face]
 
--- function Device:lookNorth()
---   if self.heading == 'e' then
---     turtle.turnLeft()
---   elseif self.heading == 's' then
---     turtle.turnLeft()
---     turtle.turnLeft()
---   elseif self.heading == 'w' then
---     turtle.turnRight()
---   end
+    if not existing then
+      local newNode = Node:new({ position = position, inspection = inspection })
 
---   self.heading = 'n'
--- end
+      node:attachEdge(face, newNode)
 
--- function Device:forward()
---   if self.heading == 'n' then
---     self.node = self.node.front.tail
---   if self.heading == 'e' then
---     self.node = self.
---   end
-
---   turtle.forward()
--- end
-
--- function Device:turnLeft()
---   turtle.turnLeft()
--- end
-
--- function Device:turnRight()
---   turtle.turnRight()
--- end
-
--- function Device:turnAround()
---   self:turnLeft()
---   self:turnLeft()
--- end
-
-function Device:findNextInspectable()
-  return self.node:accept(Inspector:new())
-end
-
-function Device:follow(route)
-end
-
-function Device:scan(graph)
-  self.node = graph.root
-
-  self:inspect()
-
-  local inspectable = self:findNextInspectable()
-
-  print('inspectable', inspectable)
-  for i, r in pairs(inspectable) do
-    print(i, r)
-  end
-
-  -- You were working out how to iterate a route list of movements
-  if inspectable.route then
-    for i, r in pairs(inspectable.route) do
-      print('route i', i, 'r', r, r.type, 'coords', r.position.x, r.position.y, r.position.z, 'to', self.node.position.x, self.node.position.y, self.node.position.z, r == self.node)
+      -- check if any other edges to attach
     end
   end
 
-  -- self:follow(route)
+  return heading, node
+end
 
-  -- self:inspect()
-  -- self:forward()
-  -- self.node = self.node.front.tail
-  -- self:inspect()
+function Device:follow(heading, node, route)
+  for _, step in ipairs(route) do
+    for _, axis in ipairs(step.position.axes) do
+      if not node then
+        print('move', node, step, axis, self:generateID(node))
+      end
+
+      if step.position[axis] ~= node.position[axis] then
+
+        heading, node = self:move(heading, node, axis, step.position[axis] - node.position[axis])
+        print('node afta', heading, node)
+      end
+    end
+  end
+
+  return heading, node
+end
+
+function Device:align(heading, axis, value)
+  if axis == 'z' then
+    if value > 0 then
+      heading = self:look(heading, 's')
+    else
+      heading = self:look(heading, 'n')
+    end
+  elseif axis == 'x' then
+    if value > 0 then
+      heading = self:look(heading, 'e')
+    else
+      heading = self:look(heading, 'w')
+    end
+  end
+
+  return heading
+end
+
+function Device:calcFace(axis, value)
+  if axis == 'z' then
+    if value > 0 then
+      return 'back'
+    else
+      return 'front'
+    end
+  elseif axis == 'x' then
+    if value > 0 then
+      return 'right'
+    else
+      return 'left'
+    end
+  end
+end
+
+function Device:look(heading, direction)
+  local directionMap = { n = 0, s = 2, e = 1, w = 3 }
+  local dir = directionMap[direction]
+  local head = directionMap[heading]
+
+  local res = head - dir
+
+  local steps = res;
+  if res < 0 then
+    steps = steps * -1;
+  end
+
+  for i = steps, 1, -1 do
+    if res < 0 then
+      turtle.turnRight()
+    elseif res > 0 then
+      turtle.turnLeft()
+    end
+  end
+
+  return direction
+end
+
+function Device:move(heading, node, axis, value)
+  heading = self:align(heading, axis, value)
+
+  local steps = value
+
+  if value < 0 then
+    steps = steps * -1
+  end
+
+  for i = steps, 1, -1 do
+    turtle.forward()
+-- TODO: this is false, but why
+-- we shouldnt be routing to some uninspected face mid way through the route. see what is going on there
+    node = node:getChildren()[self:calcFace(axis, value)]
+  end
+
+  return heading, node
+end
+
+function Device:generateID(node)
+  if not node or not node.position then
+    return node
+  end
+
+  return node.position.x .. ',' .. node.position.y .. ',' .. node.position.z
+end
+
+function Device:scan(heading, node)
+  print('[  -- scan reset -- ] at', self:generateID(node))
+
+  local next, faces, route = Inspector:new():find(node)
+
+  if route and #route > 0 then
+    print('follow', #route, heading, node)
+    heading, node = self:follow(heading, node, route)
+    print('follow ret', #route, heading, self:generateID(node))
+  end
+
+  if faces and #faces then
+    print('inspect', #faces)
+    heading, node = self:inspect(heading, node, faces)
+    print('inspect ret', #faces, heading, self:generateID(node))
+  end
+
+  print('has more?', route and #route, faces and #faces, heading, self:generateID(node))
+
+  if ((route and #route > 0) or (faces and #faces > 0) or false) then
+    return self:scan(heading, node)
+  end
 end
 
 return Device

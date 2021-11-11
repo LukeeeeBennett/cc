@@ -14,7 +14,7 @@ local secondArg = args[3]
 local thirdArg = args[4]
 local fourthArg = args[5]
 
-Slam = { graph = Graph:new(), ws = false }
+Slam = { graph = false, ws = false }
 
 function Slam:new(o)
   o = o or {}
@@ -36,9 +36,7 @@ function Slam:connect(url)
 
   local nextUrl = url or current
 
-  local ws = http.websocket(nextUrl)
-
-  self.ws = ws
+  self.ws = self.ws or http.websocket(nextUrl)
 
   handler = fs.open('.slam/url', 'w')
   handler.write(nextUrl)
@@ -47,13 +45,13 @@ end
 
 function Slam:scan(x, y, z, heading)
   local root = Node:new({ position = Position:new({ x = x, y = y, z = z }) })
-  local device = Device:new({ node = root, heading = heading })
+  local device = Device:new()
 
-  self.graph:init(root)
+  self.graph = self.graph or Graph:new({ root = root })
 
   print('Starting scan...')
 
-  device:scan(self.graph)
+  device:scan(heading, root)
 
   print('Sending scan results...')
 
