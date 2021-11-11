@@ -49,9 +49,8 @@ function Hot:listen()
 
   local resolution = false
 
-  local _, _, message
   repeat
-    _, _, message = os.pullEvent('websocket_message')
+    local _, _, message = os.pullEvent('websocket_message')
     if self.once then
       resolution = true
     end
